@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>제주 혼밥 지도</title>
+<meta name="description" content="혼자 와도 눈치 안 보는 제주 식당 지도. 사장님이 혼밥 가능이라고 밝혔거나 혼자 가서 잘 먹었다는 후기가 있는 곳만 모았어요.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* VOICE: 친근한 여행 안내소, 군더더기 없이 바로 쓰는 지도
+   IDEA: 공항 관광안내소에서 집어 드는 접이식 제주 지도 한 장
+   PICTURE: 바다 위 제주섬 실루엣과 한라산, 동네마다 꽂힌 귤색 핀
+   COLOUR/TYPE: 깊은 바다색 바탕 + 섬은 현무암 녹회색 + 귤색 강조 / Do Hyeon 제목 + Noto Sans KR
+   LAYOUT: 상단 지도(섬 전체), 아래 필터 줄, 식당 카드 목록, 맨 아래 제보 */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0d1a1f);--ink:light-dark(#14262c,#e9f1f2);--mute:light-dark(#5b6d72,#9fb3b7);
+--sea:light-dark(#0f5566,#0a3a46);--sea2:light-dark(#1b6b7e,#0f4a58);--land:light-dark(#f4f1ea,#26302c);--land2:light-dark(#c5d3bd,#3a4d43);--seamap:light-dark(#b9dcea,#0d2b36);--mt2:light-dark(#d5e8c8,#2c4a36);--mt3:light-dark(#b9d9a6,#36583f);
+--tang:#ff8a1e;--tang-ink:#7a3a00;--line:light-dark(#e2e9ea,#22363c);--card:light-dark(#f6f9f9,#12242a);--chip:light-dark(#eef3f3,#183037)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Noto Sans KR",system-ui,sans-serif;overflow-x:clip}
+h1,h2,.name{font-family:"Do Hyeon","Noto Sans KR",sans-serif;font-weight:400}
+.top{background:var(--sea);color:#f2f8f8;padding:clamp(20px,3vw,36px) max(5vw,16px) 0}
+.wrap{max-width:1240px;margin:0 auto}
+h1{font-size:clamp(32px,5vw,48px);line-height:1.05;margin:0 0 6px;text-wrap:balance}
+.sub{margin:0 0 14px;color:#cfe3e6;max-width:62ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px;color:#cfe3e6;margin-bottom:10px}
+.stats b{color:#fff;font-size:18px}
+.fig{position:relative;aspect-ratio:1000/620;width:100%;max-width:1100px;margin:0 auto;background:var(--seamap);border-radius:16px 16px 0 0;overflow:hidden}
+.fig svg{position:absolute;inset:0;width:100%;height:100%}
+.land{fill:var(--land)}.coast{fill:none;stroke:light-dark(#8fbfd3,#1d5566);stroke-width:1.6}.ctr{fill:none;stroke:light-dark(#9cc58a,#4c7356);stroke-width:1;opacity:.6}.mtk path{fill:light-dark(#6f9a5c,#8fbf7a)}
+.city{font:700 22px "Noto Sans KR";fill:light-dark(#9aa3a0,#5f6f69);letter-spacing:.3em;pointer-events:none}.lab.sm{font-size:13px}.mtl{fill:light-dark(#4f7a3e,#a6d38f)}
+.pin{cursor:pointer}
+.pin circle.h{fill:var(--tang);stroke:#fff;stroke-width:3}
+.pin.on circle.h{fill:#fff;stroke:var(--tang);stroke-width:5}
+.pin text{font:700 15px "Noto Sans KR";fill:#3b1d00;text-anchor:middle;pointer-events:none}
+.pin.on text{fill:var(--tang-ink)}
+.lab{font:500 15px "Noto Sans KR";fill:light-dark(#22323a,#d6e2e5);paint-order:stroke;stroke:light-dark(#ffffff,#26302c);stroke-width:4px;stroke-linejoin:round;pointer-events:none}
+.pin:focus-visible circle.h{outline:none;stroke:#fff;stroke-width:6}
+@media (prefers-reduced-motion:no-preference){.pin circle.p{animation:pulse 2.4s ease-out infinite;transform-box:fill-box;transform-origin:center}}
+@keyframes pulse{0%{transform:scale(1);opacity:.55}100%{transform:scale(2.2);opacity:0}}
+.band{padding:clamp(20px,3vw,40px) max(5vw,16px)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.bar input[type=search]{flex:1 1 220px;font:inherit;font-size:16px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);min-height:44px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.chips button,.btn{font:inherit;font-size:15px;min-height:40px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--chip);color:var(--ink);cursor:pointer}
+.chips button[aria-pressed=true]{background:var(--sea);border-color:var(--sea);color:#fff}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--tang);outline-offset:2px}
+.tog{display:flex;align-items:center;gap:8px;font-size:15px;min-height:44px;cursor:pointer}
+.tog input{width:20px;height:20px;accent-color:var(--tang)}
+.count{color:var(--mute);font-size:14px;margin:4px 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.name{font-size:24px;line-height:1.15;margin:0}
+.where{color:var(--mute);font-size:14px}
+.badge{font-size:13px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.b-owner{background:var(--tang);color:#3b1d00}
+.b-rev{background:light-dark(#d6ebef,#1d4652);color:light-dark(#0f5566,#cfe9ef)}
+.b-list{background:var(--chip);color:var(--mute);border:1px solid var(--line)}
+.admin{border-top:3px solid var(--tang)}.admin h2{font-size:32px;margin:0 0 6px}.admin h3{font-size:20px;margin:22px 0 8px}
+.alist{display:flex;flex-direction:column;gap:8px}.aitem{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.aitem .t{font-weight:700}.aitem .s{color:var(--mute);font-size:14px}.aitem.off{opacity:.55}.ain{font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);min-height:44px;width:100%;max-width:360px;margin-bottom:8px}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--bg);color:var(--ink);width:min(720px,94vw);padding:20px}dialog::backdrop{background:rgba(0,0,0,.45)}
+.agrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
+.b-ver{background:light-dark(#dff3e4,#183d27);color:light-dark(#1d6b39,#9be0b2)}
+.ver{font-size:14px;background:light-dark(#f0faf3,#132a1d);border-radius:10px;padding:8px 10px}.ver a{color:inherit}
+.b-chk{background:light-dark(#fff1d6,#4a3510);color:light-dark(#7a4a00,#ffd79a)}
+.menu{font-weight:500}
+.srcs{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.srcs li{border-top:1px dashed var(--line);padding-top:6px}
+.srcs a{color:inherit;font-weight:700}
+.date{color:var(--mute);white-space:nowrap}
+.links{margin-top:auto;display:flex;gap:12px;flex-wrap:wrap;font-size:14px}
+.links a{color:light-dark(#0f5566,#8fd3e0)}
+.empty{padding:30px;text-align:center;color:var(--mute);border:1px dashed var(--line);border-radius:14px}
+.report{background:var(--chip);border-top:1px solid var(--line)}
+.report h2{font-size:32px;line-height:1.05;margin:0 0 6px}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px;max-width:900px;margin-top:14px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:500}
+label.f input,label.f select,label.f textarea{font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);min-height:44px}
+.full{grid-column:1/-1}
+.send{background:var(--tang);color:#3b1d00;border:0;font-weight:700;min-height:48px;border-radius:12px;font-size:16px;cursor:pointer}
+.msg{font-size:15px;min-height:1.4em}
+footer{font-size:13px;color:var(--mute);padding:18px max(5vw,16px) 28px}
+@media(max-width:600px){.name{font-size:22px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <h1>혼자 와도 눈치 안 보는 제주 식당</h1>
+  <p class="sub">사장님이 직접 "혼밥 가능"이라고 밝혔거나, 혼자 가서 잘 먹었다는 후기가 있는 곳만 모았어요. 핀을 누르면 그 동네만 보여요.</p>
+  <div class="stats" id="stats"></div>
+  <div class="fig"><svg id="map" viewBox="0 0 1000 620" role="img" aria-label="제주도 지도 위 동네별 혼밥 식당 수"></svg></div>
+</div></header>
+
+<main class="band"><div class="wrap">
+  <div class="bar">
+    <input type="search" id="q" placeholder="식당 이름이나 메뉴로 찾기 (예: 갈치, 흑돼지)" aria-label="검색">
+    <label class="tog"><input type="checkbox" id="ownerOnly"> 사장님이 직접 밝힌 곳만</label>
+    <label class="tog"><input type="checkbox" id="verOnly"> 최근 1년 후기로 확인된 곳만</label>
+  </div>
+  <div class="chips" id="regions" aria-label="지역"></div>
+  <div class="chips" id="cats" aria-label="메뉴 종류"></div>
+  <p class="count" id="count"></p>
+  <div class="grid" id="list"></div>
+</div></main>
+
+<section class="band report"><div class="wrap">
+  <h2>혼밥 잘 되는 곳, 알려주세요</h2>
+  <p class="sub" style="color:var(--mute)">혼자 가서 잘 먹은 곳이나 정보가 달라진 곳이 있으면 알려주세요. 사장님이 직접 알려주셔도 좋아요. 근거 글 링크가 있으면 같이 보내주세요.</p>
+  <p id="report-link"></p>
+</div></section>
+
+<footer><div class="wrap">스레드·인스타그램 공개 글과 카카오맵 후기·네이버 블로그 후기(최근 1년)를 2026년 11월 21일에 모아 정리한 시안이에요. 핀은 카카오맵 좌표를 동네별로 묶은 위치예요. 최근 1년 후기에서 혼자 갔다가 거절당했다는 내용이 나온 곳은 뺐어요. 방문 전에 영업시간과 1인 주문 가능 여부를 한 번 더 확인하세요. 2인분부터만 받는다고 밝힌 곳과 광고 표시가 있는 게시물은 넣지 않았어요.</div></footer>
+
+<script>
+{
+const T="https://www.threads.com/";
+const D=[
+ {n:"생이소리",a:"",m:"제주 향토음식 정식",c:"한식",s:[{t:"owner",h:"saengisori.jeju",u:"@saengisori.jeju/post/Df2babMErCQ",d:"2026-11-18",x:"정식 메뉴 대부분 1인 주문 가능, 아침부터 점심까지 브레이크 없이 연중무휴라고 밝힘"}]},
+ {n:"단소 제주오라점",a:"ora",m:"한식 밥집, 옥돔구이",c:"한식",s:[{t:"owner",h:"danso_team",u:"@danso_team/post/DYS7dJZE-me",d:"2026-05-14",x:"공항 근처, 반려견 동반 혼밥도 된다고 직접 소개"},{t:"list",h:"jejuinfluenza",u:"@jejuinfluenza/post/DacMqe7D8sp",d:"2026-07-06",x:"1인 혼밥 가능 맛집 리스트에 한정식으로 포함"}]},
+ {n:"보배쌤 보리김치와 간장게장",a:"aewol",loc:"애월 하귀12길 4",m:"돌솥밥, 생선구이, 간장게장",c:"생선·해산물",s:[{t:"owner",h:"bobaessam_jeju",u:"@bobaessam_jeju/post/Dexeb6IE73U",d:"2026-10-22",x:"혼밥 환영, 아기 의자와 반려동물 동반 가능이라고 안내"}]},
+ {n:"푸카푸카",a:"tapdong",m:"스프카레",c:"양식·기타",s:[{t:"owner",h:"pookapooka_jeju",u:"@pookapooka_jeju/post/Ddp4D5ykWS9",d:"2026-09-24",x:"혼밥용 바 자리와 휴대폰 거치대를 준비해 뒀다고 소개"},{t:"list",h:"jejuinfluenza",u:"@jejuinfluenza/post/DacMqe7D8sp",d:"2026-07-06",x:"닭다리·소시지 스프카레로 리스트에 포함"}]},
+ {n:"오로섬",a:"",m:"혼밥 세트, 혼술 세트",c:"양식·기타",s:[{t:"owner",h:"orodo1004",u:"@orodo1004/post/DdttlWeCfxi",d:"2026-09-25",x:"혼밥·혼술 전문이라고 직접 밝힘"},{t:"review",h:"jeju_incafe_today",u:"@jeju_incafe_today/post/De-taESkmaL",d:"2026-10-27",x:"1인 세트가 있다고 추천"}]},
+ {n:"문쏘",a:"hallim",loc:"협재 부근",m:"메뉴 확인 중",c:"양식·기타",s:[{t:"owner",h:"dodream21c",u:"@dodream21c/post/DdplofwEtNL",d:"2026-09-24",x:"혼밥 테이블이 4개 있다고 소개"}]},
+ {n:"월드컵흑돼지",a:"worldcup",m:"흑돼지 1인분",c:"흑돼지·고기",s:[{t:"owner",h:"worldcup_blackpig",u:"@worldcup_blackpig/post/DdpgtaiEnNn",d:"2026-09-24",x:"흑돼지 1인분 주문이 되고 혼자 와도 눈치 볼 필요 없다고 직접 답글"}]},
+ {n:"성심조림",a:"",m:"조림 1인 15,000원",c:"생선·해산물",s:[{t:"owner",h:"sungsimjorim",u:"@sungsimjorim/post/Dfg-J-nEilK",d:"2026-11-09",x:"1인 4조각부터 인원수대로 주문, 성수기에도 양을 줄이지 않는다고 밝힘"}]},
+ {n:"함덕골목",a:"hamdeok",loc:"함덕 본점, 오라점",m:"해장국, 내장탕",c:"국물·해장국",s:[{t:"review",h:"attractivehj",u:"@attractivehj/post/DfGOLj-k68U",d:"2026-10-30",x:"혼자 오는 손님이 아주 많다고 추천, 공항에선 오라점이 가까움"},{t:"list",h:"the_extra_ordinary_pt",u:"@the_extra_ordinary_pt/post/Dcx-6l_kxq7",d:"2026-09-02",x:"혼자 여행한 사람의 맛집 목록에 포함"},{t:"list",h:"jejuinfluenza",u:"@jejuinfluenza/post/DacMqe7D8sp",d:"2026-07-06",x:"1인 혼밥 가능 리스트에 포함"}]},
+ {n:"뚱보아저씨",a:"",m:"갈치정식 1인 12,000원",c:"생선·해산물",s:[{t:"review",h:"moon.ji99",u:"@moon.ji99/post/DZHtJ9piE9c",d:"2026-06-03",x:"성게미역국·갈치구이·고등어조림 정식을 혼자 먹었다는 후기"}]},
+ {n:"뻘떡낙지",a:"",loc:"제주시",m:"낙지볶음 1인분",c:"생선·해산물",s:[{t:"review",h:"lsd1004_forever_plan",u:"@lsd1004_forever_plan/post/DPW3POfjymF",d:"2025-10-04",x:"보기 드물게 낙지볶음을 1인분으로 해주고 기본 반찬이 좋다는 단골 후기"}]},
+ {n:"홍콩미각",a:"ido",m:"중식 정식 (약 1만 원)",c:"양식·기타",s:[{t:"review",h:"lsd1004_forever_plan",u:"@lsd1004_forever_plan/post/DVOBycEkY_y",d:"2026-02-26",x:"정식 메뉴로 혼밥 가능, 요리가 바로바로 뜨겁게 나온다는 후기"}]},
+ {n:"마씸",a:"seongsan",m:"점심특선",c:"한식",s:[{t:"review",h:"qmhy_",u:"@qmhy_/post/DdqegOPFMCq",d:"2026-09-24",x:"점심특선으로 혼밥하기 좋다고 강력 추천"}]},
+ {n:"돔베와고등어",a:"airport",loc:"제주공항 옆",m:"돔베고기, 고등어조림, 톳돌솥밥 한상",c:"흑돼지·고기",s:[{t:"review",h:"healing_healing_",u:"@healing_healing_/post/DdqgKs7mIm2",d:"2026-09-24",x:"여행 처음이나 마지막에 들르기 좋고 혼밥 가능하다는 추천"}]},
+ {n:"비바리 순댓국",a:"",m:"순댓국",c:"국물·해장국",s:[{t:"review",h:"jeju.namyi",u:"@jeju.namyi/post/DdrN84pEvtn",d:"2026-09-25",x:"혼밥 가능하다는 추천 답글"}]},
+ {n:"재연식당",a:"sehwa",m:"생선구이 정식",c:"생선·해산물",s:[{t:"list",h:"jejuinfluenza",u:"@jejuinfluenza/post/DacMqe7D8sp",d:"2026-07-06",x:"1인 혼밥 가능 리스트에 생선구이정식으로 포함"}]},
+ {n:"곰막식당",a:"gujwa",m:"성게국수, 회국수",c:"면·분식",s:[{t:"list",h:"jejuinfluenza",u:"@jejuinfluenza/post/DacMqe7D8sp",d:"2026-07-06",x:"1인 혼밥 가능 리스트에 포함"}]},
+ {n:"성산부촌식당",a:"seongsan",m:"갈치조림",c:"생선·해산물",s:[{t:"list",h:"jejuinfluenza",u:"@jejuinfluenza/post/DacMqe7D8sp",d:"2026-07-06",x:"1인 혼밥 가능 리스트에 갈치조림으로 포함"}]},
+ {n:"바당집 성산점",a:"seongsan",m:"1인 정식, 1인 회정식",c:"생선·해산물",s:[{t:"list",h:"jejuinfluenza",u:"@jejuinfluenza/post/DacMqe7D8sp",d:"2026-07-06",x:"1인 정식과 1인 회정식이 있다고 소개"}]},
+ {n:"등대와 바당",a:"",m:"1인 갈치조림 정식",c:"생선·해산물",s:[{t:"list",h:"jejuinfluenza",u:"@jejuinfluenza/post/DacMqe7D8sp",d:"2026-07-06",x:"1인 갈치조림 정식이 있다고 소개"}]},
+ {n:"유리네식당",a:"ora",loc:"제주시 연북로 146",m:"성게미역국, 몸국, 고사리육개장, 전복뚝배기, 물회",c:"국물·해장국",s:[{t:"owner",h:"jeju_yurine_official",u:"https://www.instagram.com/p/DTG_w4Kk8m3/",d:"2026-01-04",x:"혼밥 대환영, 1인 메뉴를 여러 가지 준비해 뒀다고 직접 안내 (연중무휴)"}]},
+ {n:"단소 서귀포점",a:"seogwipo",m:"집밥 비빔밥 11,000원, 흑돼지 제육 한상",c:"한식",s:[{t:"owner",h:"danso_seogwipo",u:"https://www.instagram.com/p/DfypXtnTzsm/",d:"2026-11-15",x:"혼밥 언제든 환영, 오전 10시~오후 8시 브레이크 없이 운영한다고 안내"},{t:"owner",h:"danso_seogwipo",u:"https://www.instagram.com/p/DcALgBUTaJW/",d:"2026-08-13",x:"눈치 보지 말고 편하게 오라고 혼밥 환영 글을 올림"}]},
+ {n:"협재솥",a:"hallim",m:"흑돼지 솥밥, 갈치 솥밥 1인 정식",c:"생선·해산물",s:[{t:"owner",h:"jeju_hjsot",u:"https://www.instagram.com/p/CqnTCqrLH8p/",d:"2023-04-04",x:"1인 정식으로 나와 혼밥 식당으로도 추천한다는 후기를 가게 계정이 직접 소개"}]},
+ {n:"소길역",a:"sogil",m:"스키야키, 카레, 돼지덮밥",c:"양식·기타",s:[{t:"owner",h:"sogilyeuk",u:"https://www.instagram.com/p/Dfq7Snbp3ZU/",d:"2026-11-12",x:"가게 계정이 게시물마다 제주 혼밥 맛집으로 소개"}]},
+ {n:"단백",a:"seongsan",m:"흑돼지 목살 1인 25,000원",c:"흑돼지·고기",s:[{t:"review",h:"mukdduru_matdduru",u:"https://www.instagram.com/p/DCngaKJSj50/",d:"2024-11-20",x:"좌석이 모두 바(다찌) 자리인 혼고기 성지, 1인분 주문 가능"},{t:"list",h:"mr_mentions",u:"https://www.instagram.com/p/CwXJw2yP4dk/",d:"2023-08-25",x:"혼자 여행할 때 부담 없는 식당 목록에 포함"}]},
+ {n:"함덕회춘",a:"hamdeok",loc:"조천읍 신북로 489",m:"9첩 반상 15,000원",c:"한식",s:[{t:"review",h:"mukdduru_matdduru",u:"https://www.instagram.com/p/DFrN7uFyGlu/",d:"2025-02-04",x:"수육·고등어 9첩 반상, 혼밥도 부담 없이 가능하다는 후기"}]},
+ {n:"킷사핫피엔도",a:"tapdong",loc:"제주시 전농로 48-1",m:"오므라이스 등 일식",c:"양식·기타",s:[{t:"review",h:"jejudo_everywhere",u:"https://www.instagram.com/p/DfT4SFel1C1/",d:"2026-11-03",x:"레트로 다방 분위기, 혼자 조용히 식사하기 좋다는 소개"}]},
+ {n:"비상식탁",a:"ora",loc:"도남동 (공항 근처)",m:"흑돼지 돈까스, 흑돼지 쌈밥",c:"흑돼지·고기",s:[{t:"review",h:"jeju_1min",u:"https://www.instagram.com/p/CpOiPWEMTbw/",d:"2023-02-28",x:"혼자 가도 이상하지 않게 즐길 수 있는 혼밥 가능 식당으로 소개"}]},
+ {n:"수니테이블",a:"hado",loc:"구좌읍 문주란로 33-1",m:"감자탕, 흑돼지볶음밥",c:"국물·해장국",s:[{t:"review",h:"p.ark_roro",u:"https://www.instagram.com/p/C7QrC3JS2zV/",d:"2024-05-21",x:"한 트레이에 나와 혼밥하기 좋다는 후기"}]},
+ {n:"정육면체 제주점",a:"gujwa",m:"홍탁육면 등 면 요리",c:"면·분식",s:[{t:"review",h:"jeju_yeora",u:"https://www.instagram.com/p/DUCtHGsk_GS/",d:"2026-01-27",x:"모든 좌석이 바 형태라 혼자 가도 편하다는 소개"}]},
+ {n:"은비네 갈치요리전문점",a:"",m:"순살 은갈치조림 15,000원",c:"생선·해산물",s:[{t:"review",h:"kimjakgajeju (리그램)",u:"https://www.instagram.com/p/Dc2G_WMJ9T6/",d:"2026-09-03",x:"혼자서도 갈치조림을 먹을 수 있는 2대째 노포라는 소개"}]},
+ {n:"도토리키친",a:"airport",m:"청귤소바, 톳유부초밥",c:"면·분식",s:[{t:"review",h:"bundang.sisun",u:"https://www.instagram.com/p/ClTkAqrrfka/",d:"2022-11-23",x:"혼자 제주 여행 첫 끼로 다녀온 후기, 공항과 가까워 뚜벅이에게 좋음"}]},
+ {n:"달팽이식당",a:"andeok",loc:"안덕면 창천리",m:"직화불고기 & 청국장 12,000원",c:"한식",s:[{t:"review",h:"no9ourmet",u:"https://www.instagram.com/p/CYlwri_lZia/",d:"2022-01-11",x:"메뉴는 한 가지 세트, 혼밥 가능하다는 후기"}]},
+ {n:"협재수우동",a:"hallim",m:"우동",c:"면·분식",s:[{t:"list",h:"mr_mentions",u:"https://www.instagram.com/p/CwXJw2yP4dk/",d:"2023-08-25",x:"메뉴도 공간도 1인에 딱 맞는 곳으로 소개"}]},
+ {n:"옥돔식당",a:"seogwipo",m:"메뉴 확인 중",c:"한식",s:[{t:"list",h:"muki_travel",u:"https://www.instagram.com/p/DcyCgP8TNzS/",d:"2026-09-02",x:"서귀포 혼자 여행 때 혼밥하기 좋은 5곳 중 하나로 소개"}]},
+ {n:"아리",a:"seogwipo",m:"메뉴 확인 중",c:"한식",s:[{t:"list",h:"muki_travel",u:"https://www.instagram.com/p/DcyCgP8TNzS/",d:"2026-09-02",x:"서귀포 혼자 여행 때 혼밥하기 좋은 5곳 중 하나로 소개"}]},
+ {n:"만두쟁이",a:"seogwipo",m:"메뉴 확인 중",c:"한식",s:[{t:"list",h:"muki_travel",u:"https://www.instagram.com/p/DcyCgP8TNzS/",d:"2026-09-02",x:"서귀포 혼자 여행 때 혼밥하기 좋은 5곳 중 하나로 소개"}]},
+ {n:"영춘반점",a:"seogwipo",m:"메뉴 확인 중",c:"한식",s:[{t:"list",h:"muki_travel",u:"https://www.instagram.com/p/DcyCgP8TNzS/",d:"2026-09-02",x:"서귀포 혼자 여행 때 혼밥하기 좋은 5곳 중 하나로 소개"}]},
+ {n:"충남식당",a:"seogwipo",m:"메뉴 확인 중",c:"한식",s:[{t:"list",h:"muki_travel",u:"https://www.instagram.com/p/DcyCgP8TNzS/",d:"2026-09-02",x:"서귀포 혼자 여행 때 혼밥하기 좋은 5곳 중 하나로 소개"}]},
+ {n:"한림칼국수",a:"hallim",m:"보말칼국수, 보말죽",c:"면·분식",s:[{t:"list",h:"jejuinfluenza",u:"@jejuinfluenza/post/DacMqe7D8sp",d:"2026-07-06",x:"1인 혼밥 가능 리스트에 포함"}]}
+];
+const AREAS={
+ "airport":{n:"공항·용담·도두",r:"제주시"},"tapdong":{n:"탑동·원도심",r:"제주시"},"ido":{n:"이도동",r:"제주시"},
+ "ora":{n:"연동·도남·오라",r:"제주시"},"bonggae":{n:"봉개",r:"제주시"},
+ "aewol":{n:"애월 하귀",r:"서쪽"},"sogil":{n:"애월 소길리",r:"서쪽"},"hallim":{n:"한림·협재",r:"서쪽"},"hangyeong":{n:"한경",r:"서쪽"},
+ "hamdeok":{n:"함덕·조천",r:"동쪽"},"gujwa":{n:"구좌·김녕",r:"동쪽"},"sehwa":{n:"세화",r:"동쪽"},"hado":{n:"하도",r:"동쪽"},
+ "seongsan":{n:"성산",r:"동쪽"},"sinsan":{n:"성산 신산",r:"동쪽"},
+ "worldcup":{n:"월드컵경기장",r:"남쪽"},"seogwipo":{n:"서귀포 시내",r:"남쪽"},"andeok":{n:"안덕",r:"남쪽"},"daejeong":{n:"대정",r:"남쪽"}
+};
+const KD={"생이소리": ["18178220", 33.4657, 126.6115, "제주시 명림로 241", "4.0", "bonggae", null], "단소 제주오라점": ["174764754", 33.4872, 126.5075, "제주시 연사길 119", "4.0", "ora", ["2026-04-08", "카카오맵 후기", "", "혼자 갔는데도 아주 친절했고 반찬 리필도 해줬다는 후기"]], "보배쌤 보리김치와 간장게장": ["695615122", 33.4856, 126.4105, "애월읍 하귀12길 4", "4.0", "aewol", null], "푸카푸카": ["808824490", 33.5161, 126.5198, "제주시 탑동로15길 28", "4.6", "tapdong", ["2026-11-03", "네이버 블로그", "https://blog.naver.com/jeju_jwi/224463375377", "제주공항 혼밥 맛집으로 소개한 블로그 후기 (최근 1년 블로그 12건이 혼밥 언급)"]], "오로섬": ["18184963", 33.5191, 126.4933, "제주시 어영길 10-6", "4.2", "airport", ["2026-04-20", "카카오맵 후기", "", "회 세트를 1인분으로 맞춰줘서 잘 먹었다는 후기"]], "문쏘": ["444905118", 33.4057, 126.2567, "한림읍 한림상로 15-5", "2.7", "hallim", null], "월드컵흑돼지": ["26906438", 33.243, 126.5051, "서귀포시 월드컵로 74", "4.3", "worldcup", null], "성심조림": ["1632327998", 33.4915, 126.49, "제주시 신광로 8", "4.2", "ora", ["2026-11-18", "네이버 블로그", "https://blog.naver.com/blisslong/224481866168", "혼밥부터 가족 모임까지 좋은 갈치조림집이라는 블로그 후기"]], "함덕골목": ["1163513107", 33.5394, 126.6412, "조천읍 조천북6길 62", "4.3", "hamdeok", null], "뚱보아저씨": ["839698275", 33.3307, 126.2554, "한경면 중산간서로 3651", "4.2", "hangyeong", ["2026-09-16", "카카오맵 후기", "", "보통 정식은 2인분부터인데 여기는 1인분도 된다는 후기 (최근 1년 혼밥 언급 5건)"]], "뻘떡낙지": ["22645362", 33.4794, 126.5305, "제주시 오등13길 23", "4.6", "ora", ["2026-10-08", "네이버 블로그", "https://blog.naver.com/matdori_jun/224435564694", "혼자 가서 낙지볶음 1인분을 주문했다는 블로그 후기"]], "홍콩미각": ["456304584", 33.5027, 126.5384, "제주시 천수로 11", "3.1", "ido", ["2026-06-10", "네이버 블로그", "https://blog.naver.com/kjsud/224311563312", "1인 정식(볶음밥·짜장면·탕수육·군만두·탕면) 블로그 후기"]], "마씸": ["680207292", 33.4461, 126.8866, "성산읍 수시로10번길 3", "4.9", "seongsan", null], "돔베와고등어": ["687934659", 33.5097, 126.5038, "제주시 용해로 85", "-", "airport", null], "비바리 순댓국": ["576782216", 33.4917, 126.4977, "제주시 신대로7길 10 (도청점)", "4.5", "ora", null], "유리네식당": ["10678894", 33.4815, 126.497, "제주시 연북로 146", "2.7", "ora", null], "단소 서귀포점": ["136167120", 33.2646, 126.5594, "서귀포시 중산간동로 8024", "3.0", "seogwipo", null], "협재솥": ["2029505529", 33.3948, 126.2416, "한림읍 한림로 354 3층", "3.4", "hallim", ["2026-09-09", "네이버 블로그", "https://blog.naver.com/hwa9183/224404598598", "협재해수욕장 근처 혼밥하기 좋은 곳이라는 블로그 후기"]], "소길역": ["45782254", 33.4381, 126.3803, "애월읍 소길2길 53", "4.3", "sogil", ["2026-10-31", "네이버 블로그", "https://blog.naver.com/nicegold_/224459659952", "혼밥하기 좋은 스키야키집이라는 블로그 후기"]], "단백": ["40069707", 33.45, 126.9146, "성산읍 고성동서로56번길 15 2층", "4.6", "seongsan", ["2026-10-22", "네이버 블로그", "https://blog.naver.com/dameun_note/224450258042", "1인 흑돼지 목살 혼밥·혼술 추천 후기 (최근 1년 블로그 16건이 혼밥 언급)"]], "함덕회춘": ["993990346", 33.5431, 126.6625, "조천읍 신북로 489", "4.8", "hamdeok", ["2026-08-15", "카카오맵 후기", "", "혼밥으로 갔는데 친절하게 맞아줬고 1인 세트가 좋았다는 후기"]], "킷사핫피엔도": ["1166748604", 33.5043, 126.5184, "제주시 전농로 48-1", "4.3", "tapdong", ["2026-10-22", "네이버 블로그", "https://blog.naver.com/g_seul_/224449596797", "레트로 감성 나폴리탄 혼밥 후기"]], "비상식탁": ["1840736905", 33.4976, 126.5272, "제주시 도남로7길 31 (키링푸드비상식탁)", "4.3", "ora", null], "수니테이블": ["1187252795", 33.5191, 126.8858, "구좌읍 문주란로 33-1", "3.7", "hado", ["2026-09-18", "네이버 블로그", "https://blog.naver.com/kwakjiyeon81/224416203216", "혼밥하기 좋은 제주 가정식이라는 블로그 후기"]], "정육면체 제주점": ["490880696", 33.5528, 126.7134, "구좌읍 동복로 68-1", "4.7", "gujwa", ["2026-02-22", "카카오맵 후기", "", "다찌석이라 혼밥러에게 최고라는 후기"]], "은비네 갈치요리전문점": ["1570922473", 33.4978, 126.5196, "제주시 서사로 162", "4.7", "tapdong", ["2026-10-01", "카카오맵 요약", "", "카카오맵이 후기를 분석한 방문 목적에 '혼밥'이 들어감"]], "도토리키친": ["158548436", 33.5154, 126.5186, "제주시 북성로 59", "4.0", "tapdong", ["2026-11-06", "네이버 블로그", "https://blog.naver.com/binniq/224467765707", "공항 근처 청귤소바 혼밥 추천 블로그 후기"]], "달팽이식당": ["18722401", 33.266, 126.3719, "안덕면 일주서로 1322-3", "4.0", "andeok", null], "협재수우동": ["24910644", 33.3966, 126.2424, "한림읍 협재1길 11", "3.1", "hallim", null], "옥돔식당": ["9940398", 33.22, 126.249, "대정읍 신영로36번길 62", "3.6", "daejeong", null], "아리": ["122925359", 33.2614, 126.5554, "서귀포시 홍중로 99", "4.4", "seogwipo", ["2026-11-11", "카카오맵 후기", "", "텐동과 1인 사시미를 먹었다는 후기, 1인 사시미가 드물어 반가웠다고 함"]], "만두쟁이": ["1581119486", 33.2635, 126.6177, "서귀포시 하신상로 32", "4.7", "seogwipo", null], "영춘반점": ["58878850", 33.2584, 126.5602, "서귀포시 중앙로 156", "4.0", "seogwipo", null], "충남식당": ["10087213", 33.2427, 126.5634, "서귀포시 솔동산로 26", "4.6", "seogwipo", ["2026-10-02", "카카오맵 후기", "", "반찬에 정성이 느껴지고 혼밥도 가능하다는 후기 (수육정식 1인 11,000원)"]], "재연식당": ["24122989", 33.5262, 126.856, "구좌읍 세화3길 27-2", "3.8", "sehwa", ["2026-06-09", "카카오맵 후기", "", "혼자라 1인분 되냐고 물었더니 당연히 된다고 했다는 후기"]], "곰막식당": ["18421685", 33.5569, 126.7205, "구좌읍 구좌해안로 64", "3.6", "gujwa", null], "성산부촌식당": ["10471937", 33.4489, 126.9169, "성산읍 동류암로 33 (부촌)", "4.3", "seongsan", ["2026-09-22", "네이버 블로그", "https://blog.naver.com/qewradsf7772/224420140980", "성산일출봉 근처 1인 갈치조림 후기"]], "바당집 성산점": ["343160418", 33.3989, 126.9047, "성산읍 환해장성로 469", "4.8", "sinsan", null], "등대와 바당": ["11098677", 33.5061, 126.4645, "제주시 도두항서길 37 2층", "4.1", "airport", ["2026-06-04", "네이버 블로그", "https://blog.naver.com/tripsong7/224306210811", "공항 근처 조림집, 혼밥 가능하다는 블로그 후기"]], "한림칼국수": ["22893211", 33.4156, 126.2615, "한림읍 한림해안로 141", "3.8", "hallim", ["2026-08-15", "카카오맵 후기", "", "1인석이 있어 혼자 와도 부담 없다는 후기"]]};
+const proj=(lat,lon)=>[30+(lon-126.14)*1119,30+(33.58-lat)*1340];
+D.forEach(r=>{const k=KD[r.n];if(k){r.kid=k[0];r.lat=k[1];r.lon=k[2];r.addr=k[3];r.ks=k[4];r.a=k[5];r.v=k[6];}});
+const FIX={airport:[404,112],sogil:[300,242],tapdong:[470,90],ido:[540,128],ora:[452,190],aewol:[318,166],sehwa:[820,100],hado:[874,122],worldcup:[428,488]};
+function computeAreas(){for(const A of Object.values(AREAS)){delete A.x;delete A.y;}
+for(const [key,A] of Object.entries(AREAS)){const rs=D.filter(r=>r.a===key&&r.lat);if(rs.length){const pts=rs.map(r=>proj(r.lat,r.lon));A.x=pts.reduce((a,p)=>a+p[0],0)/pts.length;A.y=pts.reduce((a,p)=>a+p[1],0)/pts.length;}}
+for(const [k,v] of Object.entries(FIX)){if(AREAS[k]&&AREAS[k].x!==undefined){AREAS[k].x=v[0];AREAS[k].y=v[1];}}
+}
+computeAreas();
+const CATS=["전체","생선·해산물","흑돼지·고기","국물·해장국","면·분식","한식","양식·기타"];
+const REG=["전체","제주시","서쪽","남쪽","동쪽","위치 확인 중"];
+const st={q:"",cat:"전체",reg:"전체",area:"",owner:false,ver:false};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const isOwner=r=>r.s.some(s=>s.t==="owner");
+const regOf=r=>r.a&&AREAS[r.a]?AREAS[r.a].r:"위치 확인 중";
+const isVer=r=>!!r.v;
+const areaKey=r=>r.a;
+const BL={owner:["사장님 글","b-owner"],review:["손님 후기","b-rev"],list:["추천 리스트","b-list"]};
+
+function renderStats(){$("stats").innerHTML=`<span><b>${D.length}</b>곳</span><span><b>${D.filter(isOwner).length}</b>곳은 사장님이 직접 밝힘</span><span><b>${D.filter(r=>r.v).length}</b>곳은 최근 1년 후기로 확인</span><span>출처 글 <b>${new Set(D.flatMap(r=>r.s.map(s=>s.u))).size}</b>개</span>`;}
+
+function chips(el,arr,key){
+  $(el).innerHTML=arr.map(v=>`<button type="button" data-v="${esc(v)}" aria-pressed="${st[key]===v}">${esc(v)}</button>`).join("");
+  $(el).onclick=e=>{const b=e.target.closest("button");if(!b)return;st[key]=b.dataset.v;if(key==="reg")st.area="";render();};
+}
+function filtered(){
+  const q=st.q.trim().toLowerCase();
+  return D.filter(r=>(st.cat==="전체"||r.c===st.cat)
+    &&(st.reg==="전체"||regOf(r)===st.reg)
+    &&(!st.area||areaKey(r)===st.area)
+    &&(!st.owner||isOwner(r))&&(!st.ver||isVer(r))
+    &&(!q||(r.n+r.m+(r.loc||"")+(AREAS[r.a]?.n||"")).toLowerCase().includes(q)))
+   .sort((a,b)=>isVer(b)-isVer(a)||isOwner(b)-isOwner(a)||b.s.length-a.s.length);
+}
+function card(r){
+  const area=r.addr||r.loc||(AREAS[r.a]?AREAS[r.a].n:"위치 확인 중");
+  const kinds=[...new Set(r.s.map(s=>s.t))];
+  const nav="https://map.naver.com/p/search/"+encodeURIComponent("제주 "+r.n.replace(/\s*\(.*\)/,""));
+  return `<article class="card">
+   <div class="row">${kinds.map(k=>`<span class="badge ${BL[k][1]}">${BL[k][0]}</span>`).join("")}${r.chk?'<span class="badge b-chk">1인 주문 확인 필요</span>':""}${r.v?'<span class="badge b-ver">최근 1년 후기로 확인</span>':""}</div>
+   <h3 class="name">${esc(r.n)}</h3>
+   <div class="where">${esc(area)}</div>
+   <div class="menu">${esc(r.m)}</div>
+   ${r.v?`<div class="ver"><b>${esc(r.v[1])}</b> <span class="date">${r.v[0]}</span><br><a href="${r.v[2]||"https://place.map.kakao.com/"+r.kid+"#review"}" target="_blank" rel="noopener">${esc(r.v[3])}</a></div>`:""}
+   <ul class="srcs">${r.s.map(s=>`<li><a href="${s.u.startsWith("http")?s.u:T+s.u}" target="_blank" rel="noopener">@${esc(s.h)}</a> <span class="date">${s.u.includes("instagram")?"인스타":"스레드"} · ${s.d}</span><br>${esc(s.x)}</li>`).join("")}</ul>
+   <div class="links">${r.kid?`<a href="https://place.map.kakao.com/${r.kid}" target="_blank" rel="noopener">카카오맵${r.ks&&r.ks!=="-"?" ★"+r.ks:""}</a>`:""}<a href="${nav}" target="_blank" rel="noopener">네이버 지도</a></div>
+  </article>`;
+}
+function drawMap(list){
+  const counts={};D.filter(r=>(st.cat==="전체"||r.c===st.cat)&&(!st.owner||isOwner(r))).forEach(r=>{const k=areaKey(r);if(k)counts[k]=(counts[k]||0)+1;});
+  const sm=$("map").clientWidth<600,K=sm?1.9:1;const LAND="M749,52L767,66L773,61L782,62L787,57L802,61L805,74L803,78L808,83L807,87L812,85L818,89L818,95L830,96L829,100L837,101L837,107L843,107L846,100L851,99L863,100L865,104L874,103L880,108L886,107L887,112L891,113L885,118L887,121L882,126L891,126L898,131L901,139L896,152L903,159L888,159L886,169L893,169L898,178L898,174L902,176L901,178L905,175L906,182L914,174L910,181L914,183L915,177L923,177L923,172L925,188L937,198L928,203L921,195L917,197L908,217L911,218L911,228L924,235L923,240L919,246L915,245L907,240L911,235L909,230L901,231L904,239L896,250L893,267L887,271L891,278L891,287L861,299L863,303L853,314L853,322L847,324L849,336L835,352L834,359L824,362L819,368L819,372L826,376L825,383L811,394L811,398L798,403L788,400L780,408L776,403L769,407L764,404L761,407L756,402L746,401L741,409L734,412L733,422L728,421L723,428L717,429L713,437L702,441L696,435L695,439L686,439L683,442L682,440L679,444L657,449L640,451L635,449L633,454L626,449L615,454L619,450L617,444L613,444L615,452L606,450L604,454L596,454L592,462L592,467L579,471L577,475L574,474L571,480L570,477L568,489L559,490L556,494L553,492L543,495L535,486L527,487L522,484L514,485L510,489L514,494L509,496L511,495L503,489L504,486L502,494L492,489L489,494L480,489L474,493L458,489L452,500L445,504L432,507L431,503L422,503L411,509L412,513L408,515L402,513L390,501L389,494L381,490L372,496L364,497L362,501L336,485L327,487L306,501L301,499L300,503L289,505L280,497L262,495L249,498L252,495L249,495L250,492L245,489L234,493L229,496L228,502L224,501L222,507L213,508L206,516L208,519L201,537L205,540L206,548L199,551L195,544L186,544L185,549L177,552L167,545L168,537L171,537L169,531L164,530L162,534L158,525L154,526L151,516L144,513L136,497L121,487L113,489L99,482L77,462L75,453L65,444L64,434L55,429L54,418L61,411L57,398L62,385L56,378L55,358L61,356L63,347L76,346L74,344L76,331L85,324L99,321L105,312L117,304L113,300L123,292L124,287L129,288L133,284L137,289L139,282L145,281L144,274L155,273L156,263L163,261L159,254L162,258L166,253L170,254L166,245L164,253L158,253L163,252L164,240L169,240L167,236L168,225L177,223L181,226L186,216L192,217L195,214L200,217L201,212L203,216L211,212L218,205L223,195L220,187L226,182L234,185L242,181L251,186L264,176L270,176L275,169L288,170L307,155L313,155L317,163L323,164L331,161L334,155L344,156L351,147L359,149L373,143L380,145L384,135L391,134L393,137L394,130L398,132L395,130L398,128L416,126L419,117L428,113L450,120L455,115L466,116L480,100L485,105L485,110L490,110L492,114L501,111L504,104L509,109L512,105L517,108L519,102L529,105L533,98L544,91L551,94L578,86L584,92L585,81L590,79L588,75L596,66L604,69L602,75L606,69L612,72L612,77L616,77L621,84L623,79L629,81L631,71L635,70L645,74L648,70L676,68L679,63L693,56L692,59L697,61L703,60L700,62L704,67L704,62L714,59L725,62L728,54L733,52L744,55L749,52Z",ISL="M945,107L949,111L949,114L953,116L948,122L949,124L958,119L964,121L964,126L959,125L957,127L963,144L961,146L958,146L960,152L957,156L953,156L949,152L946,154L940,152L938,154L939,150L936,151L931,149L932,146L928,136L929,132L931,130L928,130L931,128L932,124L937,121L938,116L936,115L935,111L940,108L945,107Z M180,575L188,582L189,587L185,587L181,595L177,595L175,589L169,586L176,576L180,575Z M130,259L135,262L134,269L126,269L124,268L124,262L130,259Z M45,391L48,394L45,394L43,398L37,396L37,393L45,391Z";
+  const pins=Object.entries(counts).filter(([k])=>AREAS[k]&&AREAS[k].x).map(([k,c])=>{const A=AREAS[k];const on=st.area===k;const R=(13+Math.min(c,5)*2.5)*K;
+    return `<g class="pin${on?" on":""}" data-k="${k}" tabindex="0" role="button" aria-label="${A.n} ${c}곳${on?", 선택됨":""}">
+     <circle class="p" cx="${A.x}" cy="${A.y}" r="${R}" fill="#ff8a1e"/>
+     <circle class="h" cx="${A.x}" cy="${A.y}" r="${R}"/>
+     <text x="${A.x}" y="${A.y+5*K}" style="font-size:${15*K}px">${c}</text>
+     ${sm?"":`<text class="lab" x="${A.x}" y="${A.y+R+20}" text-anchor="middle">${A.n}</text>`}</g>`;}).join("");
+  $("map").innerHTML=`<defs><filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0b3b4a" flood-opacity=".25"/></filter>
+   <radialGradient id="mt" cx=".5" cy=".5" r=".5"><stop offset="0" style="stop-color:var(--mt3)"/><stop offset=".55" style="stop-color:var(--mt2)"/><stop offset="1" style="stop-color:var(--land);stop-opacity:0"/></radialGradient>
+   <clipPath id="isl"><path d="${LAND}"/></clipPath></defs>
+   <g filter="url(#sh)"><path d="${LAND}" class="land"/><path d="${ISL}" class="land"/></g>
+   <g clip-path="url(#isl)"><ellipse cx="466" cy="322" rx="330" ry="170" fill="url(#mt)"/>
+    <ellipse cx="466" cy="322" rx="190" ry="98" class="ctr"/><ellipse cx="466" cy="322" rx="115" ry="60" class="ctr"/><ellipse cx="466" cy="322" rx="55" ry="30" class="ctr"/></g>
+   <path d="${LAND}" class="coast"/>
+   <g class="mtk"><path d="M456,326 l10,-16 l10,16z"/></g>
+   <text class="lab mtl" x="466" y="346" text-anchor="middle">한라산</text>
+   <text class="city" x="640" y="160" text-anchor="middle">제주시</text>
+   <text class="city" x="560" y="540" text-anchor="middle">서귀포시</text>
+   <text class="lab sm" x="972" y="104">우도</text>
+   ${pins}`;
+  $("map").querySelectorAll(".pin").forEach(p=>{const go=()=>{const k=p.dataset.k;st.area=st.area===k?"":k;st.reg="전체";render();};p.onclick=go;p.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}};});
+}
+function render(){
+  chips("regions",REG,"reg");chips("cats",CATS,"cat");
+  const list=filtered();
+  const a=st.area?AREAS[st.area].n+" · ":"";
+  $("count").innerHTML=`${esc(a)}${list.length}곳${st.area?' · <button class="btn" type="button" id="clr">지역 선택 풀기</button>':""}`;
+  if($("clr"))$("clr").onclick=()=>{st.area="";render();};
+  $("list").innerHTML=list.length?list.map(card).join(""):`<div class="empty">조건에 맞는 곳이 아직 없어요. 아래에서 제보해 주세요.</div>`;
+  drawMap(list);renderStats();
+}
+$("q").oninput=e=>{st.q=e.target.value;render();};
+$("ownerOnly").onchange=e=>{st.owner=e.target.checked;render();};
+$("verOnly").onchange=e=>{st.ver=e.target.checked;render();};
+render();
+let rw=0;const ro=new ResizeObserver(()=>{const w=$("map").clientWidth<600;if(w!==rw){rw=w;drawMap();}});ro.observe($("map"));
+
+const REPORT_URL="";
+$("report-link").innerHTML=REPORT_URL?`<a class="send" style="display:inline-flex;align-items:center;padding:0 22px;text-decoration:none" href="${REPORT_URL}" target="_blank" rel="noopener">제보하러 가기</a>`:"제보 창구는 곧 열려요.";
+}
+</script>
+</body>
+</html>
