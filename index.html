@@ -256,8 +256,8 @@ $("verOnly").onchange=e=>{st.ver=e.target.checked;render();};
 render();
 let rw=0;const ro=new ResizeObserver(()=>{const w=$("map").clientWidth<600;if(w!==rw){rw=w;drawMap();}});ro.observe($("map"));
 
-const REPORT_URL="";
-$("report-link").innerHTML=REPORT_URL?`<a class="send" style="display:inline-flex;align-items:center;padding:0 22px;text-decoration:none" href="${REPORT_URL}" target="_blank" rel="noopener">제보하러 가기</a>`:"제보 창구는 곧 열려요.";
+const REPORT_URL="https://www.threads.com/@soo.yaksa";
+$("report-link").innerHTML=REPORT_URL?`<a class="send" style="display:inline-flex;align-items:center;padding:0 22px;text-decoration:none" href="${REPORT_URL}" target="_blank" rel="noopener">스레드 @soo.yaksa 로 제보하기</a><br><span style="color:var(--mute);font-size:14px">DM이나 답글로 식당 이름, 동네, 혼자 먹은 메뉴를 알려주세요.</span>`:"제보 창구는 곧 열려요.";
 }
 </script>
 </body>
